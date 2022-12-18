@@ -5,6 +5,8 @@ import { Card, Col, Row, PageHeader, Descriptions, Typography, Button  } from 'a
 
 class ResultadosBusquedaPag extends React.Component {
 
+    // Clase creada para generar una nueva página que muestre los resultados de la búsqueda
+
     constructor(props) {
         super(props)
         this.idResultados = this.props.params.string;
@@ -14,6 +16,7 @@ class ResultadosBusquedaPag extends React.Component {
         this.getPublicaciones();
     }
 
+    // Propiedad que obtiene la información principal de las publicaciones correspondientes a las coincidencias
     getPublicaciones = async () => {
         let resultados = [];
         for (let i = 0; i < this.idResultados.length; i += 2) {
@@ -34,10 +37,6 @@ class ResultadosBusquedaPag extends React.Component {
     }
 
     render() {
-        const imgStyle = {
-            height: "23em",
-            width: "100%"
-        };
         const cardStyle = {
             height: "100%"
         };        
@@ -52,9 +51,9 @@ class ResultadosBusquedaPag extends React.Component {
                         <Row gutter={ [16, 16] } >
                             { this.state.publicaciones.map( publicacion => {
                                 publicacion.linkTo = "/" + publicacion.categoria + "/" + publicacion.id;
-                                let image = <img alt={"Imagen por defecto"} src={process.env.REACT_APP_SUPBASE_STORAGE + "imageMockup.png"} style={imgStyle}/>
+                                let image = <img alt={"Imagen por defecto"} src={process.env.REACT_APP_SUPBASE_STORAGE + "imageMockup.png"}/>
                                 if ( publicacion.imagen != null ){
-                                    image = <img alt={publicacion.descripcion_imagen} src={process.env.REACT_APP_SUPBASE_STORAGE + publicacion.imagen} style={imgStyle}/> 
+                                    image = <img alt={publicacion.descripcion_imagen} src={process.env.REACT_APP_SUPBASE_STORAGE + publicacion.imagen}/> 
                                 }
                                 const parts = publicacion.fecha_publicacion.split("-");
                                 let stringFecha = parts[2] + " de " + meses[parts[1] - 1] + " de " + parts[0];

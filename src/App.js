@@ -78,22 +78,41 @@ class App extends React.Component{
         this.setState({isHover: array});
     }
 
+    /* DOCUMENTACIÓN BÚSQUEDA
+    La búsqueda principalmente se desarrolla en la propiedad 'onSearch', aunque en primer lugar tuve que crear tres vistas nuevas
+    en la base de datos de Supabase que uso para el desarrollo de mi sitio web personal. Cada una de estas vistas recoge la
+    información necesaria para la búsqueda de las publicaciones de cada categoría. Para las publicaciones de las categorías
+    aficiones y música la mayor información se va a recoger en la descripción general, por lo que se comprobará primero en esta
+    parte si se encuentra la(s) palabra(s) buscada(s), y si no es el caso se hará la búsqueda en el resto de columnas. En el caso 
+    de las publicaciones de la categoría recetas, la mayor parte de la información se ubicará en las columnas procedimiento e 
+    ingredientes, por lo que se realizará una búsqueda primero en estas. Después se considerarán columnas como el título, la 
+    descripción de la imagen o video, albumes o canción favorita para la categoría música. Todo esto con el fin de ir recopilando
+    las publicaciones donde pueden encontrarse esta(s) palabra(s) y mostrarlas después en pantalla en caso de que hubiese 
+    coincidencia, accediento a una nueva página de resultados de búsqueda.
+    */
+
     onSearch = async(value) => {
+        // Se crean tres variables, cada una de ellas para almacenar las posibles publicaciones de cada categoría
         let resultado1 = "";
         let resultado2 = "";
         let resultado3 = "";
 
+        // En primer lugar, se comprueba la coincidencia en las publicaciones de la categoría aficiones
+        // Como mencioné, primero la búsqueda en la columna 'descripcion_general'
         const { data, error } = await this.supabase
             .from('all_info_aficiones')
             .select()           
             .ilike('descripcion_general', '%' + value + '%')
         
         if (error == null) {
+            // Se agregará a resultado1 el id de aquellas publicaciones en las que se encuentre coincidencia
             for (let j = 0; j < data.length; j++) {
                 resultado1 += "0" + data[j].publicacion_id;
             }
         }
-        if (resultado1.length < 4) {
+        /* Si la variable resultado1 tiene una longitud menor a cinco, considerando que tenemos cuatro publicaciones en aficiones,
+        significa que aún puede hallarse coincidencia en alguna otra columna de las publicaciones restantes */
+        if (resultado1.length < 5) {
             const { data, error } = await this.supabase
             .from('all_info_aficiones')
             .select()           
@@ -101,11 +120,14 @@ class App extends React.Component{
         
             if (error == null) {
                 if (resultado1.length == 0) {
+                    // Puede darse el caso de que la variable resultado1 aún se encuentre vacía, por lo que se añadirá el id como anteriormente
                     for (let j = 0; j < data.length; j++) {
                         resultado1 += "0" + data[j].publicacion_id;
                     }
                 }
                 else {
+                    /* Pero también puede darse el caso de que ya existan ids agregados, por lo que habrá que comprobar previamente
+                    si los id de las coincidencia para esta columna ya se hayan en la variable resultado1, y si no están, se agregan */
                     for (let i = 0; i < resultado1.length; i += 2) {
                         for (let j = 0; j < data.length; j++) {
                             if (resultado1.substring(i, i+2) != "0" + data[j].publicacion_id) {
@@ -116,7 +138,8 @@ class App extends React.Component{
                 }
             }
         }
-        if (resultado1.length < 4) {
+        // Buscando coincidencia en la descripcion de la imagen, el resto del código actúa igual que lo mencionado anteriormente
+        if (resultado1.length < 5) {
             const { data, error } = await this.supabase
             .from('all_info_aficiones')
             .select()           
@@ -140,6 +163,8 @@ class App extends React.Component{
             }
         }
 
+        // Coincidencias en las publicaciones de la categoría música
+        // Buscando coincidencia en la descripción general
         if (resultado2.length == 0){
             const { data, error } = await this.supabase
             .from('all_info_musica')
@@ -152,6 +177,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en el título
         if (resultado2.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_musica')
@@ -175,6 +201,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en la descripción de la imagen
         if (resultado2.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_musica')
@@ -198,6 +225,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en los albumes
         if (resultado2.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_musica')
@@ -221,6 +249,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en la cancion favorita
         if (resultado2.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_musica')
@@ -244,6 +273,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en la descripción del vídeo
         if (resultado2.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_musica')
@@ -268,6 +298,8 @@ class App extends React.Component{
             }
         }        
 
+        // Coincidencias en las publicaciones de la categoría recetas
+        // Buscando coincidencia en el procedimiento
         if (resultado3.length == 0){
             const { data, error } = await this.supabase
             .from('all_info_recetas')
@@ -284,6 +316,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en los ingredientes
         if (resultado3.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_recetas')
@@ -315,6 +348,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en el título
         if (resultado3.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_recetas')
@@ -346,6 +380,7 @@ class App extends React.Component{
                 }
             }
         }
+        // Buscando coincidencia en la descripción de la imagen
         if (resultado3.length < 4) {
             const { data, error } = await this.supabase
             .from('all_info_recetas')
@@ -378,8 +413,10 @@ class App extends React.Component{
             }
         }
 
+        // Tras obtener las diferentes ids de las publicaciones con coincidencia, se agregan a un mismo string
         let string = resultado1 + resultado2 + resultado3;
 
+        // Carga de la página de los resultados de búsqueda identificados por los ids de las publicaciones
         window.location = "/resultadosbusqueda/" + string;
     }
   
@@ -447,6 +484,7 @@ class App extends React.Component{
                                         <Route path="/contacto" element={ 
                                             <ContactoPag supabase={this.supabase}/> 
                                         } />
+                                        {/* Página de los resultados de la búsqueda */}
                                         <Route path="/resultadosbusqueda/:string" element={
                                             <ResultadosBusquedaPag supabase={this.supabase}/>
                                         } />
@@ -457,6 +495,7 @@ class App extends React.Component{
                     </Content>
 
                     <Sider theme='light' width={270} style={this.state.mostrarAside? styleSider : styleNoneDisplay}>
+                        {/* Implementación Buscador */}
                         <p><b>Búsqueda</b></p>
                         <p><Search placeholder="Introduce el texto" onSearch={(value) => this.onSearch(value)} enterButton /></p>
                         <br/>
